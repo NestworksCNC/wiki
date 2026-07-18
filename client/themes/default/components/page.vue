@@ -166,7 +166,7 @@
                   //-   )
                   //-   span {{commentsCount}}
                 .d-flex
-                  v-btn.text-none(
+                  v-btn.page-comments-action-btn.text-none(
                     @click='goToComments()'
                     :color='$vuetify.theme.dark ? `blue-grey` : `blue-grey darken-2`'
                     outlined
@@ -176,7 +176,7 @@
                     span.blue-grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-2`') {{$t('common:comments.viewDiscussion')}}
                   v-tooltip(right, v-if='commentsPerms.write')
                     template(v-slot:activator='{ on }')
-                      v-btn.ml-2(
+                      v-btn.page-comments-action-btn.page-comment-btn.ml-2(
                         @click='goToComments(true)'
                         v-on='on'
                         outlined
@@ -184,7 +184,7 @@
                         :color='$vuetify.theme.dark ? `blue-grey` : `blue-grey darken-2`'
                         :aria-label='$t(`common:comments.newComment`)'
                         )
-                        v-icon(:color='$vuetify.theme.dark ? `blue-grey lighten-1` : `blue-grey darken-2`', dense) mdi-comment-plus
+                        img.page-comment-icon(src='/_assets/svg/comment.svg', alt='', width='16', height='16', aria-hidden='true')
                     span {{$t('common:comments.newComment')}}
 
             v-card.page-author-card.mb-5(v-show='tocShown')
@@ -891,6 +891,34 @@ export default {
   }
   .v-breadcrumbs__divider:nth-child(2) {
     padding: 0 6px 0 12px;
+  }
+}
+
+.page-comments-action-btn.v-btn:not(.v-btn--round).v-size--small {
+  border-radius: 4px;
+  box-sizing: border-box;
+  border: 0.67px solid #303030;
+}
+
+.page-comment-btn.v-btn:not(.v-btn--round).v-size--small {
+  width: 31px;
+  height: 28px;
+  min-width: 31px;
+}
+
+.page-comment-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.container.grid-list-xl .layout .flex.page-col-sd {
+  padding: 8px;
+}
+
+@media (min-width: 1264px) {
+  .flex.page-col-sd.lg3 {
+    max-width: 20%;
   }
 }
 
