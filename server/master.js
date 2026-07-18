@@ -49,6 +49,17 @@ module.exports = async () => {
   }
 
   // ----------------------------------------
+  // HMR (Dev Mode Only)
+  // Must run before static assets, otherwise stale assets/js
+  // chunks shadow the in-memory webpack build and break UI updates.
+  // ----------------------------------------
+
+  if (global.DEV) {
+    app.use(global.WP_DEV.devMiddleware)
+    app.use(global.WP_DEV.hotMiddleware)
+  }
+
+  // ----------------------------------------
   // Public Assets
   // ----------------------------------------
 
@@ -62,7 +73,7 @@ module.exports = async () => {
   })
   app.use('/_assets', express.static(path.join(WIKI.ROOTPATH, 'assets'), {
     index: false,
-    maxAge: '7d'
+    maxAge: global.DEV ? 0 : '7d'
   }))
 
   // ----------------------------------------
@@ -130,15 +141,6 @@ module.exports = async () => {
     url: '/'
   }
   app.locals.devMode = WIKI.devMode
-
-  // ----------------------------------------
-  // HMR (Dev Mode Only)
-  // ----------------------------------------
-
-  if (global.DEV) {
-    app.use(global.WP_DEV.devMiddleware)
-    app.use(global.WP_DEV.hotMiddleware)
-  }
 
   // ----------------------------------------
   // Routing

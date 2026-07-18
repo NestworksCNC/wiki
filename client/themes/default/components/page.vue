@@ -1,9 +1,9 @@
 <template lang="pug">
   v-app(v-scroll='upBtnScroll', :dark='$vuetify.theme.dark', :class='$vuetify.rtl ? `is-rtl` : `is-ltr`')
     nav-header(v-if='!printView')
-    v-navigation-drawer(
+    v-navigation-drawer.wiki-sidebar(
       v-if='navMode !== `NONE` && !printView'
-      :class='$vuetify.theme.dark ? `grey darken-4-d4` : `primary`'
+      :class='sidebarDrawerClass'
       dark
       app
       clipped
@@ -11,9 +11,24 @@
       :temporary='$vuetify.breakpoint.smAndDown'
       v-model='navShown'
       :right='$vuetify.rtl'
+      :mini-variant='isSidebarMini'
+      :mini-variant-width='64'
       )
       vue-scroll(:ops='scrollStyle')
-        nav-sidebar(:color='$vuetify.theme.dark ? `grey darken-4-d4` : `primary`', :items='sidebarDecoded', :nav-mode='navMode')
+        nav-sidebar(
+          :color='$vuetify.theme.dark ? `grey darken-4-d4` : `wiki-sidebar`'
+          :items='sidebarDecoded'
+          :nav-mode='navMode'
+          :mini='isSidebarMini'
+        )
+      button.wiki-sidebar-toggle(
+        v-if='$vuetify.breakpoint.mdAndUp'
+        type='button'
+        :class='{ "is-mini": navMini }'
+        :aria-label='navMini ? "Expand sidebar" : "Collapse sidebar"'
+        @click='toggleNavMini'
+        )
+        v-icon(size='16', color='white') {{ navMini ? 'mdi-menu-right' : 'mdi-menu-left' }}
 
     v-fab-transition(v-if='navMode !== `NONE`')
       v-btn(
@@ -51,12 +66,12 @@
       v-container.grey.pa-0(fluid, :class='$vuetify.theme.dark ? `darken-4-l3` : `lighten-4`')
         v-row.page-header-section(no-gutters, align-content='center', style='height: 90px;')
           v-col.page-col-content.is-page-header(
-            :offset-xl='tocPosition === `left` ? 2 : 0'
-            :offset-lg='tocPosition === `left` ? 3 : 0'
-            :xl='tocPosition === `right` ? 10 : false'
-            :lg='tocPosition === `right` ? 9 : false'
+            :offset-xl='tocPosition === `left` && tocShown ? 2 : 0'
+            :offset-lg='tocPosition === `left` && tocShown ? 3 : 0'
+            :xl='tocPosition === `right` && tocShown ? 10 : 12'
+            :lg='tocPosition === `right` && tocShown ? 9 : 12'
             style='margin-top: auto; margin-bottom: auto;'
-            :class='$vuetify.rtl ? `pr-4` : `pl-4`'
+            :class='pageHeaderClass'
             )
             .page-header-headings
               .headline.grey--text(:class='$vuetify.theme.dark ? `text--lighten-2` : `text--darken-3`') {{title}}
@@ -87,26 +102,36 @@
         v-layout(row)
           v-flex.page-col-sd(
             v-if='tocPosition !== `off` && $vuetify.breakpoint.lgAndUp'
+            :class='{ "page-col-sd--collapsed": !tocShown }'
             :order-xs1='tocPosition !== `right`'
             :order-xs2='tocPosition === `right`'
-            lg3
-            xl2
+            :lg3='tocShown'
+            :xl2='tocShown'
             )
-            v-card.page-toc-card.mb-5(v-if='tocDecoded.length')
-              .overline.pa-5.pb-0(:class='$vuetify.theme.dark ? `blue--text text--lighten-2` : `primary--text`') {{$t('common:page.toc')}}
-              v-list.pb-3(dense, nav, :class='$vuetify.theme.dark ? `darken-3-d3` : ``')
-                template(v-for='(tocItem, tocIdx) in tocDecoded')
-                  v-list-item(@click='$vuetify.goTo(tocItem.anchor, scrollOpts)')
-                    v-icon(color='grey', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-chevron-right` }}
-                    v-list-item-title.px-3 {{tocItem.title}}
-                  //- v-divider(v-if='tocIdx < toc.length - 1 || tocItem.children.length')
-                  template(v-for='tocSubItem in tocItem.children')
-                    v-list-item(@click='$vuetify.goTo(tocSubItem.anchor, scrollOpts)')
-                      v-icon.px-3(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-chevron-right` }}
-                      v-list-item-title.px-3.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-1`') {{tocSubItem.title}}
-                    //- v-divider(inset, v-if='tocIdx < toc.length - 1')
+            template(v-if='tocDecoded.length')
+              button.page-toc-toggle.mb-3(
+                type='button'
+                :class='{ "is-collapsed": !tocShown }'
+                :aria-expanded='tocShown ? "true" : "false"'
+                :aria-label='$t("common:page.toc")'
+                @click='tocShown = !tocShown'
+                )
+                v-icon.page-toc-toggle__icon(size='20') mdi-menu
+                span.page-toc-toggle__label(v-show='tocShown') {{$t('common:page.toc')}}
+              v-card.page-toc-card.mb-5(v-show='tocShown')
+                v-list.pb-3.pt-2(dense, nav, :class='$vuetify.theme.dark ? `darken-3-d3` : ``')
+                  template(v-for='(tocItem, tocIdx) in tocDecoded')
+                    v-list-item(@click='$vuetify.goTo(tocItem.anchor, scrollOpts)')
+                      v-icon(color='grey', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-chevron-right` }}
+                      v-list-item-title.px-3 {{tocItem.title}}
+                    //- v-divider(v-if='tocIdx < toc.length - 1 || tocItem.children.length')
+                    template(v-for='tocSubItem in tocItem.children')
+                      v-list-item(@click='$vuetify.goTo(tocSubItem.anchor, scrollOpts)')
+                        v-icon.px-3(color='grey lighten-1', small) {{ $vuetify.rtl ? `mdi-chevron-left` : `mdi-chevron-right` }}
+                        v-list-item-title.px-3.caption.grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-1`') {{tocSubItem.title}}
+                      //- v-divider(inset, v-if='tocIdx < toc.length - 1')
 
-            v-card.page-tags-card.mb-5(v-if='tags.length > 0')
+            v-card.page-tags-card.mb-5(v-if='tags.length > 0', v-show='tocShown')
               .pa-5
                 .overline.teal--text.pb-2(:class='$vuetify.theme.dark ? `text--lighten-3` : ``') {{$t('common:page.tags')}}
                 v-chip.mr-1.mb-1(
@@ -126,7 +151,7 @@
                   )
                   v-icon(:color='$vuetify.theme.dark ? `teal lighten-3` : `teal`', size='20') mdi-tag-multiple
 
-            v-card.page-comments-card.mb-5(v-if='commentsEnabled && commentsPerms.read')
+            v-card.page-comments-card.mb-5(v-if='commentsEnabled && commentsPerms.read', v-show='tocShown')
               .pa-5
                 .overline.pb-2.blue-grey--text.d-flex.align-center(:class='$vuetify.theme.dark ? `text--lighten-3` : `text--darken-2`')
                   span {{$t('common:comments.sdTitle')}}
@@ -162,7 +187,7 @@
                         v-icon(:color='$vuetify.theme.dark ? `blue-grey lighten-1` : `blue-grey darken-2`', dense) mdi-comment-plus
                     span {{$t('common:comments.newComment')}}
 
-            v-card.page-author-card.mb-5
+            v-card.page-author-card.mb-5(v-show='tocShown')
               .pa-5
                 .overline.indigo--text.d-flex(:class='$vuetify.theme.dark ? `text--lighten-3` : ``')
                   span {{$t('common:page.lastEditedBy')}}
@@ -195,7 +220,7 @@
             //-       )
             //-       .caption.grey--text 5 votes
 
-            v-card.page-shortcuts-card(flat)
+            v-card.page-shortcuts-card(flat, v-show='tocShown')
               v-toolbar(:color='$vuetify.theme.dark ? `grey darken-4-d3` : `grey lighten-3`', flat, dense)
                 v-spacer
                 //- v-tooltip(bottom)
@@ -222,8 +247,11 @@
 
           v-flex.page-col-content(
             xs12
-            :lg9='tocPosition !== `off`'
-            :xl10='tocPosition !== `off`'
+            :class='{ "page-col-content--expanded": !tocShown && tocPosition !== `off` }'
+            :lg9='tocPosition !== `off` && tocShown'
+            :xl10='tocPosition !== `off` && tocShown'
+            :lg12='tocPosition === `off` || !tocShown'
+            :xl12='tocPosition === `off` || !tocShown'
             :order-xs1='tocPosition === `right`'
             :order-xs2='tocPosition !== `right`'
             )
@@ -498,6 +526,8 @@ export default {
       locales: siteLangs,
       navShown: false,
       navExpanded: false,
+      navMini: false,
+      tocShown: true,
       upBtnShown: false,
       pageEditFab: false,
       scrollOpts: {
@@ -531,6 +561,23 @@ export default {
     commentsCount: get('page/commentsCount'),
     commentsPerms: get('page/effectivePermissions@comments'),
     editShortcutsObj: get('page/editShortcuts'),
+    isSidebarMini () {
+      return this.navMini && this.$vuetify.breakpoint.mdAndUp
+    },
+    sidebarDrawerClass () {
+      return {
+        'grey darken-4-d4': this.$vuetify.theme.dark,
+        'wiki-sidebar--mini': this.isSidebarMini
+      }
+    },
+    pageHeaderClass () {
+      return {
+        'pr-4': this.$vuetify.rtl,
+        'pl-4': !this.$vuetify.rtl,
+        'is-toc-collapsed-left': !this.tocShown && this.tocPosition === 'left',
+        'is-toc-collapsed-right': !this.tocShown && this.tocPosition === 'right'
+      }
+    },
     rating: {
       get () {
         return 3.5
@@ -609,6 +656,10 @@ export default {
     if (this.$vuetify.theme.dark) {
       this.scrollStyle.bar.background = '#424242'
     }
+
+    try {
+      this.navMini = window.localStorage.getItem('wikiSidebarMini') === '1'
+    } catch (err) {}
 
     // -> Check side navigation visibility
     this.handleSideNavVisibility()
@@ -704,7 +755,14 @@ export default {
         this.navShown = true
       } else {
         this.navShown = false
+        this.navMini = false
       }
+    },
+    toggleNavMini () {
+      this.navMini = !this.navMini
+      try {
+        window.localStorage.setItem('wikiSidebarMini', this.navMini ? '1' : '0')
+      } catch (err) {}
     },
     goToComments (focusNewComment = false) {
       this.$vuetify.goTo('#discussion', this.scrollOpts)
@@ -717,6 +775,109 @@ export default {
 </script>
 
 <style lang="scss">
+
+.page-toc-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  margin: 0;
+  cursor: pointer;
+  color: #303030;
+  background: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  box-shadow:
+    0px 1px 5px 0px rgba(0, 0, 0, 0.12),
+    0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+    0px 3px 1px -2px rgba(0, 0, 0, 0.2);
+  outline: none;
+  text-align: left;
+
+  &__icon {
+    color: #303030 !important;
+    margin-right: 8px;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  &.is-collapsed {
+    width: 40px;
+    min-height: 40px;
+    padding: 0;
+    justify-content: center;
+
+    .page-toc-toggle__icon {
+      margin-right: 0;
+    }
+  }
+
+  @at-root .theme--dark & {
+    color: #81c784;
+    background: #303030;
+
+    .page-toc-toggle__icon {
+      color: #81c784 !important;
+    }
+  }
+}
+
+.v-application .wiki-sidebar {
+  background-color: #303030 !important;
+  border-color: #303030 !important;
+  overflow: visible !important;
+
+  > .v-navigation-drawer__content {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  > .v-navigation-drawer__border {
+    background-color: rgba(255, 255, 255, 0.12);
+    width: 1px;
+  }
+}
+
+.wiki-sidebar-toggle {
+  position: absolute;
+  top: 55%;
+  // Half on the sidebar, half outside (width 16px -> offset 8px)
+  right: -8px;
+  z-index: 8;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 16px;
+  height: 120px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: #fff;
+  background: #404040;
+  border: 1px solid #FFFFFF;
+  border-radius: 50px;
+  outline: none;
+  transform: translateY(-50%);
+
+  &:hover {
+    background: #4a4a4a;
+  }
+
+  @at-root .v-application--is-rtl & {
+    right: auto;
+    left: -8px;
+  }
+}
 
 .breadcrumbs-nav {
   .v-btn {
@@ -741,10 +902,33 @@ export default {
   max-height: calc(100vh - 64px);
   overflow-y: auto;
   -ms-overflow-style: none;
+  transition: flex-basis 0.2s ease, max-width 0.2s ease, width 0.2s ease;
+
+  &--collapsed {
+    flex: 0 0 56px !important;
+    flex-basis: 56px !important;
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+    max-width: 56px !important;
+    width: 56px !important;
+    min-width: 56px !important;
+    overflow: visible;
+  }
 }
 
 .page-col-sd::-webkit-scrollbar {
   display: none;
+}
+
+.page-col-content {
+  transition: flex-basis 0.2s ease, max-width 0.2s ease, width 0.2s ease;
+
+  &--expanded {
+    flex: 1 1 0 !important;
+    flex-grow: 1 !important;
+    max-width: calc(100% - 56px) !important;
+    width: calc(100% - 56px) !important;
+  }
 }
 
 .page-header-section {
@@ -752,6 +936,14 @@ export default {
 
   > .is-page-header {
     position: relative;
+
+    &.is-toc-collapsed-left {
+      padding-left: 72px !important;
+    }
+
+    &.is-toc-collapsed-right {
+      padding-right: 72px !important;
+    }
   }
 
   .page-header-headings {

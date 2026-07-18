@@ -1,9 +1,10 @@
 <template lang="pug">
   div
-    .pa-3.d-flex(v-if='navMode === `MIXED`', :class='$vuetify.theme.dark ? `grey darken-5` : `blue darken-3`')
+    //- Temporarily hide MIXED mode toolbar (home / browse / main menu switch)
+    .pa-3.d-flex(v-if='false', :class='$vuetify.theme.dark ? `grey darken-5` : `wiki-sidebar-toolbar`')
       v-btn(
         depressed
-        :color='$vuetify.theme.dark ? `grey darken-4` : `blue darken-2`'
+        :color='$vuetify.theme.dark ? `grey darken-4` : `grey darken-3`'
         style='min-width:0;'
         @click='goHome'
         :aria-label='$t(`common:header.home`)'
@@ -12,7 +13,7 @@
       v-btn.ml-3(
         v-if='currentMode === `custom`'
         depressed
-        :color='$vuetify.theme.dark ? `grey darken-4` : `blue darken-2`'
+        :color='$vuetify.theme.dark ? `grey darken-4` : `grey darken-3`'
         style='flex: 1 1 100%;'
         @click='switchMode(`browse`)'
         )
@@ -21,28 +22,28 @@
       v-btn.ml-3(
         v-else-if='currentMode === `browse`'
         depressed
-        :color='$vuetify.theme.dark ? `grey darken-4` : `blue darken-2`'
+        :color='$vuetify.theme.dark ? `grey darken-4` : `grey darken-3`'
         style='flex: 1 1 100%;'
         @click='switchMode(`custom`)'
         )
         v-icon(left) mdi-navigation
         .body-2.text-none {{$t('common:sidebar.mainMenu')}}
-    v-divider
-    //-> Custom Navigation
-    v-list.py-2(v-if='currentMode === `custom`', dense, :class='color', :dark='dark')
+    //-> Custom Navigation (Main Menu)
+    v-list.py-2(:class='[color, { "wiki-sidebar-nav--mini": mini }]', v-if='currentMode === `custom`', dense, :dark='dark')
       template(v-for='item of items')
         v-list-item(
           v-if='item.k === `link`'
           :href='item.t'
           :target='item.y === `externalblank` ? `_blank` : `_self`'
           :rel='item.y === `externalblank` ? `noopener` : ``'
+          :title='item.l'
           )
           v-list-item-avatar(size='24', tile)
             v-icon(v-if='item.c.match(/fa[a-z] fa-/)', size='19') {{ item.c }}
             v-icon(v-else) {{ item.c }}
-          v-list-item-title {{ item.l }}
+          v-list-item-title(v-show='!mini') {{ item.l }}
         v-divider.my-2(v-else-if='item.k === `divider`')
-        v-subheader.pl-4(v-else-if='item.k === `header`') {{ item.l }}
+        v-subheader.pl-4(v-else-if='item.k === `header` && !mini') {{ item.l }}
     //-> Browse
     v-list.py-2(v-else-if='currentMode === `browse`', dense, :class='color', :dark='dark')
       template(v-if='currentParent.id > 0')
@@ -91,6 +92,10 @@ export default {
     navMode: {
       type: String,
       default: 'MIXED'
+    },
+    mini: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -225,10 +230,9 @@ export default {
     this.currentParent.title = `/ ${this.$t('common:sidebar.root')}`
     if (this.navMode === 'TREE') {
       this.currentMode = 'browse'
-    } else if (this.navMode === 'STATIC') {
-      this.currentMode = 'custom'
     } else {
-      this.currentMode = window.localStorage.getItem('navPref') || 'custom'
+      // Default to Main Menu; toolbar switch is temporarily hidden
+      this.currentMode = 'custom'
     }
     if (this.currentMode === 'browse') {
       this.loadFromCurrentPath()
@@ -236,3 +240,20 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.wiki-sidebar-toolbar {
+  background-color: #262626 !important;
+}
+
+.wiki-sidebar-nav--mini {
+  .v-list-item {
+    justify-content: center;
+    padding: 0 8px !important;
+  }
+
+  .v-list-item__avatar {
+    margin: 0 !important;
+  }
+}
+</style>
