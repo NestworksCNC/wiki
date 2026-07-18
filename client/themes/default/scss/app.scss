@@ -85,12 +85,15 @@
 
   h1 {
     padding: 0;
-    color: mc('blue', '800');
+    color: #21A65B;
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 48px;
     margin-top: 2rem;
     position: relative;
 
     @at-root .theme--dark & {
-      color: mc('grey', '300');
+      color: #21A65B;
     }
 
     &::after {
@@ -100,18 +103,18 @@
       left: 0;
       width: 100%;
       height: 2px;
-      background: linear-gradient(to right, mc('theme', 'primary'), rgba(mc('theme', 'primary'), 0));
+      background: #21A65B;
       border-radius: 3px;
 
       @at-root .theme--dark & {
-        background: linear-gradient(to right, mc('blue', '300') 0%, mc('blue', '500') 10%, rgba(mc('blue', '900'), 0) 100%);
+        background: #21A65B;
       }
 
       @at-root .is-rtl & {
-        background: linear-gradient(to left, mc('theme', 'primary'), rgba(mc('theme', 'primary'), 0));
+        background: #21A65B;
       }
       @at-root .theme--dark.is-rtl & {
-        background: linear-gradient(to left, mc('grey', '600'), rgba(mc('grey', '600'), 0));
+        background: #21A65B;
       }
     }
   }
@@ -1182,24 +1185,25 @@
 
   &-header {
     color: #FFF;
+    height: 41px;
     padding: 8px 20px;
     font-size: 16px;
     font-weight: 500;
-    background-color: mc('blue-grey', '500');
+    background: #539779;
     border-radius: 7px 7px 0 0;
 
     @at-root .theme--dark & {
-      background-color: lighten(mc('blue-grey', '900'), 5%);
+      background: #539779;
     }
   }
 
   &-main {
-    background-color: mc('blue-grey', '50');
+    background: #FAFFFB;
     border-radius: 0 0 7px 7px;
     padding: 20px;
 
     @at-root .theme--dark & {
-      background-color: darken(mc('grey', '900'), 5%);
+      background: #FAFFFB;
     }
   }
 }
