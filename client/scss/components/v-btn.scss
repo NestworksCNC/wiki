@@ -32,6 +32,15 @@
   }
 }
 
+.v-application .btn-animate-edit.v-btn--fab.primary {
+  background-color: #303030 !important;
+  border-color: #303030 !important;
+  box-shadow:
+    0px 1px 18px 0px rgba(0, 0, 0, 0.12),
+    0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+    0px 3px 5px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
 .btn-animate-wrench {
   i {
     transition: all .7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
