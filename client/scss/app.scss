@@ -29,3 +29,8 @@
 @import 'pages/error';
 
 @import 'layout/_rtl';
+
+.v-application .primary {
+  background-color: #303030 !important;
+  border-color: #303030 !important;
+}

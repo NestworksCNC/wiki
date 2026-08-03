@@ -366,7 +366,7 @@
     notify
     search-results
     v-fab-transition
-      v-btn(
+      v-btn.page-up-btn(
         v-if='upBtnShown'
         fab
         fixed
@@ -847,7 +847,7 @@ export default {
 
 .wiki-sidebar-toggle {
   position: absolute;
-  top: 55%;
+  top: 50%;
   // Half on the sidebar, half outside (width 16px -> offset 8px)
   right: -8px;
   z-index: 8;
@@ -877,6 +877,12 @@ export default {
     right: auto;
     left: -8px;
   }
+}
+
+.v-application .page-up-btn.primary {
+  background-color: #303030 !important;
+  border-color: #303030 !important;
+  box-shadow: 0 1px 18px 0 rgba(0, 0, 0, .12), 0 6px 10px 0 rgba(0, 0, 0, .14), 0 3px 5px -1px rgba(0, 0, 0, .2) !important;
 }
 
 .breadcrumbs-nav {
@@ -919,6 +925,10 @@ export default {
 @media (min-width: 1264px) {
   .flex.page-col-sd.lg3 {
     max-width: 20%;
+  }
+
+  .v-application--is-ltr .offset-lg-3 {
+    margin-left: 20%;
   }
 }
 

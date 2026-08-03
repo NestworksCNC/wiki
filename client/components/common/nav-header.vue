@@ -18,7 +18,7 @@
         autocomplete='off'
       )
     v-layout(row)
-      v-flex(xs5, md4)
+      v-flex(xs7, md4)
         v-toolbar.nav-header-inner(dark, flat, :class='$vuetify.rtl ? `pr-3` : `pl-3`')
           .org-logo-wrap(@click='goHome')
             img.org-logo(:src='logoUrl', alt='')
@@ -73,7 +73,7 @@
                 v-btn.ml-2.mr-0(icon, v-on='on', href='/t', :aria-label='$t(`common:header.browseTags`)')
                   v-icon(color='grey') mdi-tag-multiple
               span {{$t('common:header.browseTags')}}
-      v-flex(xs7, md4)
+      v-flex(xs5, md4)
         v-toolbar.nav-header-inner.pr-4(dark, flat)
           v-spacer
           .navHeaderLoading.mr-3
@@ -508,13 +508,18 @@ export default {
     display: flex;
     align-items: center;
     cursor: pointer;
-    flex-shrink: 0;
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .org-logo {
-    height: 34px;
-    width: auto;
     display: block;
+    width: auto;
+    height: auto;
+    max-height: 34px;
+    max-width: 100%;
+    object-fit: contain;
   }
 
   .nav-header-inner {
@@ -523,6 +528,18 @@ export default {
 
     .v-toolbar__content {
       padding: 0;
+      min-width: 0;
+      overflow: visible;
+    }
+  }
+
+  @media (max-width: 959px) {
+    > .v-toolbar__content > .container {
+      padding: 0;
+    }
+
+    .layout > .flex:first-child {
+      min-width: 0;
     }
   }
 
