@@ -67,7 +67,6 @@
         v-row.page-header-section(no-gutters, align-content='center', style='height: 90px;')
           v-col.page-col-content.is-page-header(
             :offset-xl='tocPosition === `left` && tocShown ? 2 : 0'
-            :offset-lg='tocPosition === `left` && tocShown ? 3 : 0'
             :xl='tocPosition === `right` && tocShown ? 10 : 12'
             :lg='tocPosition === `right` && tocShown ? 9 : 12'
             style='margin-top: auto; margin-bottom: auto;'
@@ -575,7 +574,8 @@ export default {
         'pr-4': this.$vuetify.rtl,
         'pl-4': !this.$vuetify.rtl,
         'is-toc-collapsed-left': !this.tocShown && this.tocPosition === 'left',
-        'is-toc-collapsed-right': !this.tocShown && this.tocPosition === 'right'
+        'is-toc-collapsed-right': !this.tocShown && this.tocPosition === 'right',
+        'page-col-offset-lg': this.tocPosition === 'left' && this.tocShown
       }
     },
     rating: {
@@ -927,8 +927,12 @@ export default {
     max-width: 20%;
   }
 
-  .v-application--is-ltr .offset-lg-3 {
+  .v-application--is-ltr .page-col-offset-lg {
     margin-left: 20%;
+  }
+
+  .v-application--is-rtl .page-col-offset-lg {
+    margin-right: 20%;
   }
 }
 

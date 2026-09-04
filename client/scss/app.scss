@@ -34,3 +34,9 @@
   background-color: #303030 !important;
   border-color: #303030 !important;
 }
+
+@media (min-width: 1264px) {
+  .v-application--is-ltr .offset-lg-3 {
+    margin-left: 20% !important;
+  }
+}
